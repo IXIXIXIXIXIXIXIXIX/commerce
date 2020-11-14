@@ -10,11 +10,12 @@ class Category(models.Model):
 
 class Listing(models.Model):
 	lister = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
-	category = models.ForeignKey(Category, blank=True)
+	category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
 	title = models.CharField(max_length=64)
 	description = models.TextField()
 	starting_bid = models.DecimalField(max_digits=12, decimal_places=2)
 	img_url = models.URLField(blank=True)
+	is_active = models.BooleanField(required=False)
 	watchers = models.ManyToManyField(User, blank=True, related_name="watched_listings")
 
 class Bid(models.Model):
