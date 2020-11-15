@@ -1,11 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.forms import ModelForm
 
-from .models import User
+from .models import User, Listing, Category, Bid, Comment
 
+# Create class from Listings model for form to add new listing
+class NewListingForm(ModelForm):
+	class Meta:
+		model = Listing
+		fields = ["title", "category", "starting_bid", "img_url", "description"]
 
 def index(request):
     return render(request, "auctions/index.html")
@@ -61,3 +68,22 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+@login_required
+def create_listing(request):
+	
+	if request.method == "POST":
+		
+		# Get info from submitted form
+		form = NewListinfForm(request.POST)
+
+		# Check form is valid
+		if form.is_valid():
+			
+			item = form.cleaned_data["item"]
+			
+	else:
+		return render(request, "auctions/create_listing.html", {
+			"form": NewListingForm()
+		}) 
+
