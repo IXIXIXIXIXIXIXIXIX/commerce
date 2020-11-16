@@ -80,10 +80,14 @@ def create_listing(request):
 		# Check form is valid
 		if form.is_valid():
 			
-			new_entry = NewListingForm(form.cleaned_data)
-			new_entry["lister"] = request.user
-			new_entry["is_active"] = True
-			form.save()
+			new_entry = Listing()
+			new_entry = form.save(commit=False) 
+			current_user = User.objects.get(username=(str(request.user.username)))
+			new_entry.lister = current_user
+			new_entry.is_active = True
+			new_entry.save()
+
+			return render(request, "auctions/index.html")
 			
 	else:
 		return render(request, "auctions/create_listing.html", {
