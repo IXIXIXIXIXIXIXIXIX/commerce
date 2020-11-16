@@ -75,12 +75,15 @@ def create_listing(request):
 	if request.method == "POST":
 		
 		# Get info from submitted form
-		form = NewListinfForm(request.POST)
+		form = NewListingForm(request.POST)
 
 		# Check form is valid
 		if form.is_valid():
 			
-			item = form.cleaned_data["item"]
+			new_entry = NewListingForm(form.cleaned_data)
+			new_entry["lister"] = request.user
+			new_entry["is_active"] = True
+			form.save()
 			
 	else:
 		return render(request, "auctions/create_listing.html", {

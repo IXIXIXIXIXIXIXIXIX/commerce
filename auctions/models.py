@@ -8,6 +8,9 @@ class User(AbstractUser):
 class Category(models.Model):
 	category = models.CharField(max_length=64)
 
+	def __str__(self):
+		return f"{self.category}"
+
 class Listing(models.Model):
 	lister = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
 	category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True)
