@@ -15,7 +15,12 @@ class NewListingForm(ModelForm):
 		fields = ["title", "category", "starting_bid", "img_url", "description"]
 
 def index(request):
-    return render(request, "auctions/index.html")
+
+	# Get list of all active listings
+	active_listings = Listing.objects.filter(is_active=True)
+	return render(request, "auctions/index.html", {
+		"active_listings": active_listings
+	})
 
 
 def login_view(request):

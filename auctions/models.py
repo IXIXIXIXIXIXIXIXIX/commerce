@@ -17,6 +17,7 @@ class Listing(models.Model):
 	title = models.CharField(max_length=64)
 	description = models.TextField()
 	starting_bid = models.DecimalField(max_digits=12, decimal_places=2)
+	current_bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, blank=True, null=True)
 	img_url = models.URLField(blank=True)
 	is_active = models.BooleanField(default=True)
 	watchers = models.ManyToManyField(User, blank=True, related_name="watched_listings")
