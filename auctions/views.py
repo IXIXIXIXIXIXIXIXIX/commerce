@@ -99,3 +99,14 @@ def create_listing(request):
 			"form": NewListingForm()
 		}) 
 
+def listing(request, list_id):
+
+	# Get listing item from list_id
+	item = Listing.objects.get(id=list_id)
+
+	if not item:
+		return render(request, "auctions/no_item.html")
+	
+	return render(request, "auctions/listing.html", {
+		"item": item
+	})
