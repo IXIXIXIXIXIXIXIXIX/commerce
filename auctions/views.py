@@ -18,8 +18,10 @@ def index(request):
 
 	# Get list of all active listings
 	active_listings = Listing.objects.filter(is_active=True)
+
+	bids = Bid.objects.filter(list_item__is_active=True)
 	return render(request, "auctions/index.html", {
-		"active_listings": active_listings
+		"active_listings": active_listings, "bids": bids
 	})
 
 

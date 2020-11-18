@@ -17,7 +17,7 @@ class Listing(models.Model):
 	title = models.CharField(max_length=64)
 	description = models.TextField()
 	starting_bid = models.DecimalField(max_digits=12, decimal_places=2)
-	current_bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, blank=True, null=True)
+	#current_bid = models.ForeignKey('Bid', on_delete=models.SET_NULL, blank=True, null=True)
 	img_url = models.URLField(blank=True)
 	is_active = models.BooleanField(default=True)
 	watchers = models.ManyToManyField(User, blank=True, related_name="watched_listings")
@@ -26,6 +26,9 @@ class Bid(models.Model):
 	bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
 	list_item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
 	bid_amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+	class Meta:
+		ordering = ['-bid_amount']	
 
 class Comment(models.Model):
 	commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
