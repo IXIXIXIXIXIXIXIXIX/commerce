@@ -4,24 +4,27 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.forms import ModelForm
+#from django.forms import ModelForm, Form
+from django import forms
 
 from .models import User, Listing, Category, Bid, Comment
 
 # Create class from Listings model for form to add new listing
-class NewListingForm(ModelForm):
+class NewListingForm(forms.ModelForm):
 	class Meta:
 		model = Listing
 		fields = ["title", "category", "starting_bid", "img_url", "description"]
+
+class MakeBidForm(forms.Form):
+	new_bid = forms.DecimalField(label="Bid amount: £", max_digits=12, decimal_places=2)
 
 def index(request):
 
 	# Get list of all active listings
 	active_listings = Listing.objects.filter(is_active=True)
 
-	bids = Bid.objects.filter(list_item__is_active=True)
 	return render(request, "auctions/index.html", {
-		"active_listings": active_listings, "bids": bids
+		"active_listings": active_listings
 	})
 
 
@@ -105,10 +108,16 @@ def listing(request, list_id):
 
 	# Get listing item from list_id
 	item = Listing.objects.get(id=list_id)
+	bid = Bid.objects.filter(listing=list_id).first()
 
 	if not item:
 		return render(request, "auctions/no_item.html")
 	
 	return render(request, "auctions/listing.html", {
-		"item": item
+		"item": item, "bid": bid, "bid_form": MakeBidForm()
 	})
+
+@login_required
+def bid(request, list_id):
+
+	return render(request, "auctions/index.html")

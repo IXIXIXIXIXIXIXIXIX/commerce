@@ -8,8 +8,8 @@
 		<li> 
 			<a href="{% url 'listing' listing.id %}">{{ listing.title }}</a>
 			<p>Current Price: £
-				{% if listing.bids %}
-					{{ listing.bids[0].bid_amount }}
+				{% if listing.current_bid %}
+					{{ listing.current_bid.bid_amount }}
 				{% else %}
 					{{ listing.starting_bid }}
 				{% endif %}
