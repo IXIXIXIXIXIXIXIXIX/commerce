@@ -16,8 +16,9 @@
 			{% if user == bid.bidder %}
 				<div>Your bid is currently the highest bid on this item.</div>
 			{% else %}
-				<form action="{% url 'bid' item.id %}" method="POST">
+				<form action="{% url 'make_bid' item.id %}" method="POST">
 					{{ bid_form }}
+					{% csrf_token %}
 					<input type="submit" class="btn btn-primary" value="Submit Bid">
 				</form>
 			{% endif %}

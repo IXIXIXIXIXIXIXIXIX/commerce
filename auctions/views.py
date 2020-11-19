@@ -108,6 +108,7 @@ def listing(request, list_id):
 
 	# Get listing item from list_id
 	item = Listing.objects.get(id=list_id)
+	# Bids model specifies that bids are ordered from highest to lowest by default, so this retrieves highest current bid
 	bid = Bid.objects.filter(listing=list_id).first()
 
 	if not item:
@@ -118,6 +119,46 @@ def listing(request, list_id):
 	})
 
 @login_required
-def bid(request, list_id):
+def make_bid(request, list_id):
 
+	if request.method == "POST":
+		bid_form = MakeBidForm(request.POST)
+
+		if bid_form.is_valid():
+			new_bid = bid_form.cleaned_data["new_bid"]
+		else:
+			message = "Bid is not valid"
+			# Render listing page with message
+			return render(request, "auctions/listing.html/" + list_id, {
+				"bid_form": bid_form, "message": message
+			})
+		
+		item = Listing.objects.get(id=list_id)
+		starting_bid = item.starting_bid
+		query_bid = Bid.objects.filter(listing=item).first()
+		#
+		# Reminder for the morning:
+		# Something here doesn't work - all bids are being accepted, so probs something to do with query_bid being empty
+		# However, go to bed now and worry about that later
+		#
+		# Determine lowest possible bid
+		if not query_bid:
+			current_bid = starting_bid
+		else:
+			current_bid = query_bid.bid_amount
+
+		if (new_bid <= current_bid):
+			# Deal with sitution where bid is too low
+			message = "Error: Bid is too low"
+			return render(request, "auctions/listing.html/" + list_id, {
+				"bid_form": bid_form, "message": message
+			})
+		else:
+			# Register new bid
+			register_bid = Bid(bidder=request.user, bid_amount=new_bid)
+			register_bid.save()
+			return HttpResponseRedirect(reverse("listing", args=[list_id]))
+			
+
+	# If user somehow gets to this view via method other than POST, render the index page
 	return render(request, "auctions/index.html")
