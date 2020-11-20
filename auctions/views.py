@@ -108,14 +108,23 @@ def listing(request, list_id):
 
 	# Get listing item from list_id
 	item = Listing.objects.get(id=list_id)
-	# Bids model specifies that bids are ordered from highest to lowest by default, so this retrieves highest current bid
-	bid = Bid.objects.filter(listing=list_id).first()
-
+	
 	if not item:
 		return render(request, "auctions/no_item.html")
+
+	# Bids model specifies that bids are ordered from highest to lowest by default, so this retrieves highest current bid
+	current_bid = Bid.objects.filter(listing=item).first()
+
+	# Get current user and check if they are logged in and if they are watching the current item
+	current_user = request.user
+	if current_user.is_authenticated:
+		watched_item = current_user.watched_listings.filter(id=list_id).first()
+	else:
+		watched_item = None
 	
+
 	return render(request, "auctions/listing.html", {
-		"item": item, "bid": bid, "bid_form": MakeBidForm()
+		"item": item, "bid": current_bid, "bid_form": MakeBidForm(), "is_watched": watched_item
 	})
 
 @login_required
@@ -136,11 +145,7 @@ def make_bid(request, list_id):
 		item = Listing.objects.get(id=list_id)
 		starting_bid = item.starting_bid
 		query_bid = Bid.objects.filter(listing=item).first()
-		#
-		# Reminder for the morning:
-		# Something here doesn't work - all bids are being accepted, so probs something to do with query_bid being empty
-		# However, go to bed now and worry about that later
-		#
+		
 		# Determine lowest possible bid
 		if not query_bid:
 			current_bid = starting_bid
@@ -149,6 +154,10 @@ def make_bid(request, list_id):
 
 		if (new_bid <= current_bid):
 			# Deal with sitution where bid is too low
+			#
+			# This render function doesn't work AS IS - come back and look at this
+			#
+			#
 			message = "Error: Bid is too low"
 			return render(request, "auctions/listing.html/" + list_id, {
 				"bid_form": bid_form, "message": message
@@ -157,8 +166,18 @@ def make_bid(request, list_id):
 			# Register new bid
 			register_bid = Bid(bidder=request.user, bid_amount=new_bid)
 			register_bid.save()
+			register_bid.listing.add(item)
+
 			return HttpResponseRedirect(reverse("listing", args=[list_id]))
 			
 
 	# If user somehow gets to this view via method other than POST, render the index page
+	return render(request, "auctions/index.html")
+
+@login_required
+def add_watch(request, list_id):
+	return render(request, "auctions/index.html")
+
+@login_required
+def remove_watch(request, list_id):
 	return render(request, "auctions/index.html")
