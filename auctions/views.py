@@ -176,8 +176,54 @@ def make_bid(request, list_id):
 
 @login_required
 def add_watch(request, list_id):
-	return render(request, "auctions/index.html")
+	
+	if request.method == "POST":
+		# Get required records
+		item = Listing.objects.get(id=list_id)
+		current_user = request.user
+
+		# Add user to item's watchers and re-render
+		item.watchers.add(current_user)
+		return HttpResponseRedirect(reverse("listing", args=[list_id]))
+	else:
+		return render(request, "auctions/index.html")
 
 @login_required
 def remove_watch(request, list_id):
-	return render(request, "auctions/index.html")
+	
+	if request.method == "POST":
+		# Predictably, get required records
+		item = Listing.objects.get(id=list_id)
+		current_user = request.user
+		
+		# Remove user from item's watchers and re-render
+		item.watchers.remove(current_user)
+		return HttpResponseRedirect(reverse("listing", args=[list_id]))
+	else:
+		return render(request, "auctions/index.html")
+
+@login_required
+def close_auction(request, list_id):
+
+	if request.method == "POST":
+		
+		# Get required records
+		item = Listing.objects.get(id=list_id)
+
+		if (item.is_active) and (item.lister == request.user):
+			item.is_active = False
+			item.save()
+			
+		return HttpResponseRedirect(reverse("listing", args=[list_id]))
+	else:
+		return render(request, "auctions/index.html")
+
+@login_required
+def watchlist(request):
+
+	# Get list of all watched listings
+	watched_listings = Listing.objects.filter(watchers=request.user)
+
+	return render(request, "auctions/watchlist.html", {
+		"watched_listings": watched_listings
+	})

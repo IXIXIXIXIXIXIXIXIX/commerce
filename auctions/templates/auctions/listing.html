@@ -14,13 +14,27 @@
 		
 		{% if user.is_authenticated %}
 			{% if user == bid.bidder %}
-				<div>Your bid is currently the highest bid on this item.</div>
+				{% if item.is_active %}
+					<div>Your bid is currently the highest bid on this item.</div>
+				{% else %}
+					<div>You have won this aution</div>
+				{% endif %}
 			{% else %}
-				<form action="{% url 'make_bid' item.id %}" method="POST">
-					{{ bid_form }}
-					{% csrf_token %}
-					<input type="submit" class="btn btn-primary" value="Submit Bid">
-				</form>
+				{% if item.is_active %}
+					{% if user == item.lister %}
+				
+						<form action="{% url 'close_auction' item.id %}" method="POST">
+							<input type="submit" class="btn btn-warning" value="Close Auction">
+							{% csrf_token %}
+						</form>
+					{% else %}
+						<form action="{% url 'make_bid' item.id %}" method="POST">
+							{{ bid_form }}
+							{% csrf_token %}
+							<input type="submit" class="btn btn-primary" value="Place Bid">
+						</form>
+					{% endif %}
+				{% endif %}
 			{% endif %}
 
 			{% if is_watched %}
