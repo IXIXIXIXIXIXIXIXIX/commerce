@@ -159,6 +159,7 @@ def make_bid(request, list_id):
 			#
 			#
 			message = "Error: Bid is too low"
+			return HttpResponseRedirect(reverse("listing", args=[list_id]))
 			return render(request, "auctions/listing.html/" + list_id, {
 				"bid_form": bid_form, "message": message
 			})
@@ -226,4 +227,22 @@ def watchlist(request):
 
 	return render(request, "auctions/watchlist.html", {
 		"watched_listings": watched_listings
+	})
+
+def categories(request):
+
+	return render(request, "auctions/categories.html", {
+		"categories": Category.objects.all()
+	})
+
+def category_listings(request, category_id):
+
+	# Get category from category id
+	current_category = Category.objects.get(id=category_id)
+
+	# Get all listings in chosen category
+	category_listings = Listing.objects.filter(category=current_category)
+
+	return render(request, "auctions/category_listings.html", {
+		"category_name": current_category.category, "category_listings": category_listings
 	})
