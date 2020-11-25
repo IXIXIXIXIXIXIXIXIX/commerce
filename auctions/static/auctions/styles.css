@@ -9,6 +9,7 @@ table {
 
 label {
 	text-align: right;
+	margin-right: 10px;
 }
 
 td {
@@ -16,4 +17,27 @@ td {
 }
 .btn_container {
 	text-align: right;
+}
+
+.listing_img {
+	max-width: 40%;
+	max-height: 40%;
+}
+
+.img_container {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+.comment_block {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	width:40%;
+}
+
+.comment_container {
+	border-style: solid;
+	border-color: grey;
+	padding: 5px;
+	margin-bottom: 5px;
 }

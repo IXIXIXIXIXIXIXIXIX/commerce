@@ -16,7 +16,10 @@ class NewListingForm(forms.ModelForm):
 		fields = ["title", "category", "starting_bid", "img_url", "description"]
 
 class MakeBidForm(forms.Form):
-	new_bid = forms.DecimalField(label="Bid amount: £", max_digits=12, decimal_places=2)
+	new_bid = forms.DecimalField(label="Bid amount £", max_digits=12, decimal_places=2)
+
+class NewCommentForm(forms.Form):
+	new_comment = forms.CharField(label="", widget=forms.Textarea)
 
 def index(request):
 
@@ -110,10 +113,15 @@ def listing(request, list_id):
 	item = Listing.objects.get(id=list_id)
 	
 	if not item:
-		return render(request, "auctions/no_item.html")
+		message = "This item does not exist."
+		return render(request, "auctions/error.html", {
+			"message": message
+		})
 
 	# Bids model specifies that bids are ordered from highest to lowest by default, so this retrieves highest current bid
 	current_bid = Bid.objects.filter(listing=item).first()
+
+	comments = Comment.objects.filter(list_item=item)
 
 	# Get current user and check if they are logged in and if they are watching the current item
 	current_user = request.user
@@ -124,7 +132,7 @@ def listing(request, list_id):
 	
 
 	return render(request, "auctions/listing.html", {
-		"item": item, "bid": current_bid, "bid_form": MakeBidForm(), "is_watched": watched_item
+		"item": item, "bid": current_bid, "bid_form": MakeBidForm(), "comment_form": NewCommentForm(), "comments": comments, "is_watched": watched_item
 	})
 
 @login_required
@@ -154,14 +162,9 @@ def make_bid(request, list_id):
 
 		if (new_bid <= current_bid):
 			# Deal with sitution where bid is too low
-			#
-			# This render function doesn't work AS IS - come back and look at this
-			#
-			#
-			message = "Error: Bid is too low"
-			return HttpResponseRedirect(reverse("listing", args=[list_id]))
-			return render(request, "auctions/listing.html/" + list_id, {
-				"bid_form": bid_form, "message": message
+			message = "Bid is too low"
+			return render(request, "auctions/error.html/", {
+				"message": message
 			})
 		else:
 			# Register new bid
@@ -246,3 +249,36 @@ def category_listings(request, category_id):
 	return render(request, "auctions/category_listings.html", {
 		"category_name": current_category.category, "category_listings": category_listings
 	})
+
+@login_required
+def save_comment(request, list_id):
+	
+	# Error message to be displayed if anything is not valid	
+	message = "Comment not saved"
+
+	if request.method == "POST":
+	
+		# Get item to be commmented on
+		item = Listing.objects.filter(id=list_id).first()
+		if not item:
+			return render(request, "auctions/error.html", {
+				"message": message
+			})
+
+		# Check form is valid and if so save comment	
+		comment_form = NewCommentForm(request.POST)
+		if comment_form.is_valid():
+			comment_text = comment_form.cleaned_data["new_comment"]
+			
+			comment = Comment(commenter=request.user, list_item=item, comment_text=comment_text)
+			comment.save()
+
+			return HttpResponseRedirect(reverse("listing", args=[list_id]))
+		else:
+			return render(request, "auctions/error.html", {
+				"message": message
+			})
+	else:
+		return render(request, "auctions/error.html", {
+			"message": message
+		})

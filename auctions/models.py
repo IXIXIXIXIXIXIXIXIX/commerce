@@ -24,7 +24,6 @@ class Listing(models.Model):
 
 class Bid(models.Model):
 	bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
-	#list_item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
 	bid_amount = models.DecimalField(max_digits=12, decimal_places=2)
 
 	class Meta:
