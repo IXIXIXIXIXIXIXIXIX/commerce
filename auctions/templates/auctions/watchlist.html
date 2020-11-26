@@ -3,9 +3,8 @@
 {% block body %}
     <h2>Your Watchlist</h2>
 
-	<ul>
 	{% for listing in watched_listings %}
-		<li> 
+		<div class="index_item"> 
 			<a href="{% url 'listing' listing.id %}">{{ listing.title }}</a>
 			<p>Current Price: £
 				{% if listing.current_bid %}
@@ -16,11 +15,11 @@
 
 			</p>
 			{% if listing.img_url %}
-				<p><img src="{{ listing.img_url }}" alt="{{ listing.title }}"></p>
+				<img src="{{ listing.img_url }}" alt="{{ listing.title }}" class="index_img">
 			{% endif %}
-			<p>{{ listing.description }}</p>
-		</li>
+			<div class="index_discription">{{ listing.description }}</div>
+		</div>
 	{% empty %}
-		Your Watchlist is empty.
+		Your watchlist is empty.
 	{% endfor %}
 {% endblock %}

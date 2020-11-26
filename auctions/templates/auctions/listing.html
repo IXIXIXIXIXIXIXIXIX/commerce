@@ -2,18 +2,20 @@
 
 {% block body %}
     <h2>{{ item.title }}</h2>
-	<span>Category: {{ item.category }}</span>
-	{% if is_watched %}
-		<form action="{% url 'remove_watch' item.id %}" method="POST">
-			{% csrf_token %}
-			<input type="submit" class="btn btn-danger" value="Remove from Watchlist">
-		</form>
-	{% else %}
-		<form action="{% url 'add_watch' item.id %}" method="POST">
-			{% csrf_token %}
-			<input type="submit" class="btn btn-primary" value="Add to  Watchlist">
-		</form>
-	{% endif %}
+	<span class="category_label">Category: {{ item.category }}</span>
+	<div class="watch_container">
+		{% if is_watched %}
+			<form action="{% url 'remove_watch' item.id %}" method="POST">
+				{% csrf_token %}
+				<input type="submit" class="btn btn-danger btn-sm" value="Remove from Watchlist">
+			</form>
+		{% else %}
+			<form action="{% url 'add_watch' item.id %}" method="POST">
+				{% csrf_token %}
+				<input type="submit" class="btn btn-primary btn-sm" value="Add to  Watchlist">
+			</form>
+		{% endif %}
+	</div>
 	<div class="img_container"><img src="{{ item.img_url }}" alt="{{ listing.title }}" class="listing_img"></div>
 	<div>
 		<h4>Description:</h4>
